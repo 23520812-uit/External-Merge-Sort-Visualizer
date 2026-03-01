@@ -44,6 +44,8 @@ const logEntries      = $("#log-entries");
 const dataDisplay     = $("#data-display");
 const procInfo        = $("#processing-info");
 
+const API_BASE = (window.API_BASE || "").replace(/\/+$/, "");
+
 // ==================================================================
 // STATE
 // ==================================================================
@@ -97,6 +99,10 @@ if (btnTheme) {
 }
 
 initTheme();
+
+if (window.location.hostname.includes("github.io") && !API_BASE) {
+    setStatus("[Lưu ý] GitHub Pages chỉ host giao diện tĩnh. Hãy cấu hình window.API_BASE để gọi backend Flask.");
+}
 
 // ==================================================================
 // DATA INPUT
@@ -247,7 +253,7 @@ async function loadFromAPI() {
     btnPlay.disabled = true;
 
     try {
-        const res = await fetch("/api/sort", {
+        const res = await fetch(`${API_BASE}/api/sort`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ data, B, mode }),
