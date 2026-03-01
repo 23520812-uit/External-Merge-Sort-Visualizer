@@ -21,7 +21,6 @@ Web app trực quan hóa thuật toán **External Merge Sort** (Flask + HTML/CSS
 ## Yêu cầu môi trường
 
 - Python 3.11
-- Khuyến nghị dùng Conda env: `cs523`
 
 ## Cài đặt
 
@@ -51,7 +50,6 @@ Mở trình duyệt tại: `http://127.0.0.1:5000`
 ```text
 .
 ├── app.py
-├── debug_repro.py
 ├── environment.yml
 ├── requirements.txt
 ├── templates/
@@ -60,18 +58,3 @@ Mở trình duyệt tại: `http://127.0.0.1:5000`
 	├── script.js
 	└── style.css
 ```
-
-## Đẩy lên GitHub
-
-Sau khi đã ở root project:
-
-```bash
-git init
-git add .
-git commit -m "Initial commit: External Merge Sort Visualizer"
-git branch -M main
-git remote add origin <your-repo-url>
-git push -u origin main
-```
-
-`.gitignore` đã được thêm để loại trừ cache, file tạm và thư mục môi trường local.
