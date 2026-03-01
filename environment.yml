@@ -1,0 +1,11 @@
+# Dùng pip? Xem requirements.txt
+name: cs523
+channels:
+  - defaults
+dependencies:
+  - python=3.11
+  - numpy
+  - pip
+  - pip:
+      - flask
+      - flask-cors

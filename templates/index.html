@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>External Merge Sort — Trực quan hóa</title>
+    <meta name="description" content="Trực quan hóa thuật toán External Merge Sort" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="/static/style.css" />
+</head>
+
+<body>
+
+    <!-- ======================== TOP BAR ======================== -->
+    <header id="top-bar">
+        <div class="top-bar-title">
+            <h1>External Merge Sort</h1>
+            <span class="top-bar-sub">Algorithm Visualization</span>
+        </div>
+        <button class="top-theme-btn" id="btn-theme" title="Chuyển sáng/tối">🌙 Dark</button>
+    </header>
+
+    <!-- =================== CONTROLS PANEL =================== -->
+    <section id="controls">
+        <div class="ctrl-group main-input-row">
+            <label class="ctrl-label">Dữ liệu:</label>
+            <input type="text" id="input-data" class="ctrl-input data-input"
+                placeholder="VD: 5, 3, 8, 1, 9, 2, 7, 4, 6" />
+
+            <label class="ctrl-label" for="input-B">B (Buffer Pages):</label>
+            <input type="number" id="input-B" class="ctrl-input small-input" value="3" min="3" max="10" />
+            <label class="ctrl-checkbox-label">
+                <input type="checkbox" id="chk-repacking" />
+                Dùng Repacking
+            </label>
+        </div>
+
+        <!-- Animation Controls -->
+        <div class="ctrl-group anim-controls">
+            <div class="anim-actions-row">
+                <button class="ctrl-btn anim-btn" id="btn-step-back" title="Bước lùi" disabled>&lt;&lt;</button>
+                <button class="ctrl-btn anim-btn primary" id="btn-play" title="Chạy / Tạm dừng" disabled>▶ Play</button>
+                <button class="ctrl-btn anim-btn" id="btn-step-fwd" title="Bước tiến" disabled>&gt;&gt;</button>
+                <button class="ctrl-btn" id="btn-reset" title="Reset nhanh">Reset</button>
+            </div>
+        </div>
+
+        <div class="ctrl-group preset-row">
+            <label class="ctrl-label preset-label">Preset:</label>
+            <button class="ctrl-btn preset-btn" data-preset="random" title="Random">Random</button>
+            <button class="ctrl-btn preset-btn" data-preset="best" title="Best-cased">Best-cased</button>
+            <button class="ctrl-btn preset-btn" data-preset="sorted" title="Sorted">Sorted</button>
+            <button class="ctrl-btn preset-btn" data-preset="duplicates" title="Duplicates">Duplicates</button>
+            <button class="ctrl-btn preset-btn" data-preset="near" title="Near-sorted">Near-sorted</button>
+        </div>
+
+        <div class="ctrl-group speed-controls">
+            <div class="speed-group anim-speed-row">
+                <label>Tốc độ:</label>
+                <input type="range" id="speed-slider" min="1" max="10" value="5" />
+                <span id="speed-val">5</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- =================== PROCESSING INFO =================== -->
+    <section id="processing-info" style="display: none;">
+        <div class="proc-group">
+            <span class="proc-label">Dữ liệu đầu vào:</span>
+            <div id="data-display" class="proc-content"></div>
+        </div>
+    </section>
+
+    <!-- =================== DASHBOARD ========================= -->
+    <section id="dashboard">
+        <div class="stat-box">
+            <span class="stat-label">Pass hiện tại</span>
+            <span class="stat-value" id="stat-pass">—</span>
+        </div>
+        <div class="stat-box">
+            <span class="stat-label">I/O Reads</span>
+            <span class="stat-value" id="stat-reads">0</span>
+        </div>
+        <div class="stat-box">
+            <span class="stat-label">I/O Writes</span>
+            <span class="stat-value" id="stat-writes">0</span>
+        </div>
+        <div class="stat-box">
+            <span class="stat-label">Bước</span>
+            <span class="stat-value" id="stat-step">0 / 0</span>
+        </div>
+    </section>
+
+    <!-- ================== STATUS MESSAGE ===================== -->
+    <div id="status-msg" class="status-msg">Sẵn sàng — nhập dữ liệu rồi nhấn Play.</div>
+
+    <!-- ================== ANIMATION STAGE ==================== -->
+    <section id="stage">
+        <!-- Row 1: Input Disk -->
+        <div class="stage-row" id="row-disk">
+            <div class="row-label">Input Disk</div>
+            <div class="row-content" id="disk-area"></div>
+        </div>
+
+        <!-- Row 2: Main Memory (RAM) -->
+        <div class="stage-row" id="row-ram">
+            <div class="row-label">RAM (<span id="ram-B-label">B</span> pages)</div>
+            <div class="row-content ram-container" id="ram-area"></div>
+        </div>
+
+        <!-- Row 3: Temp Disk (Runs) -->
+        <div class="stage-row" id="row-temp">
+            <div class="row-label">Temp Disk (Runs)</div>
+            <div class="row-content" id="temp-area"></div>
+        </div>
+
+        <!-- Row 4: Output Disk -->
+        <div class="stage-row" id="row-output">
+            <div class="row-label">Output Disk</div>
+            <div class="row-content" id="output-area"></div>
+        </div>
+    </section>
+
+    <!-- =================== LOG PANEL ========================= -->
+    <section id="log-section" class="stage-row">
+        <div class="row-label">Nhật ký</div>
+        <div id="log-panel">
+            <div id="log-entries"></div>
+        </div>
+    </section>
+
+    <script src="/static/script.js"></script>
+</body>
+
+</html>
