@@ -55,9 +55,4 @@ Mở trình duyệt tại: `http://127.0.0.1:5000`
 ├── app.py
 ├── environment.yml
 ├── requirements.txt
-├── templates/
-│   └── index.html
-└── static/
-    ├── script.js
-    └── style.css
 ```
