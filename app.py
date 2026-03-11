@@ -21,11 +21,16 @@ Các action trong animation_steps:
 
 import math
 import heapq
-from flask import Flask, request, jsonify, render_template
+from pathlib import Path
+from flask import Flask, request, jsonify, render_template, send_from_directory
 from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app)
+
+BASE_DIR = Path(__file__).resolve().parent
+TEMPLATES_DIR = BASE_DIR / "templates"
+STATIC_DIR = BASE_DIR / "static"
 
 # =====================================================================
 # Biến đếm ID duy nhất cho mỗi phần tử dữ liệu
@@ -50,7 +55,37 @@ def _reset_ids():
 # =====================================================================
 @app.route("/")
 def index():
-    return render_template("index.html")
+    template_file = TEMPLATES_DIR / "index.html"
+    root_index = BASE_DIR / "index.html"
+
+    if template_file.exists():
+        return render_template("index.html")
+    if root_index.exists():
+        return send_from_directory(BASE_DIR, "index.html")
+
+    return jsonify({"error": "Không tìm thấy file giao diện index.html"}), 500
+
+
+@app.route("/style.css")
+def style_css():
+    root_file = BASE_DIR / "style.css"
+    static_file = STATIC_DIR / "style.css"
+    if root_file.exists():
+        return send_from_directory(BASE_DIR, "style.css")
+    if static_file.exists():
+        return send_from_directory(STATIC_DIR, "style.css")
+    return jsonify({"error": "Không tìm thấy style.css"}), 404
+
+
+@app.route("/script.js")
+def script_js():
+    root_file = BASE_DIR / "script.js"
+    static_file = STATIC_DIR / "script.js"
+    if root_file.exists():
+        return send_from_directory(BASE_DIR, "script.js")
+    if static_file.exists():
+        return send_from_directory(STATIC_DIR, "script.js")
+    return jsonify({"error": "Không tìm thấy script.js"}), 404
 
 
 # =====================================================================
