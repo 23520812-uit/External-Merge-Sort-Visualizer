@@ -33,6 +33,8 @@ const statPass        = $("#stat-pass");
 const statReads       = $("#stat-reads");
 const statWrites      = $("#stat-writes");
 const statStep        = $("#stat-step");
+const statBackend     = $("#stat-backend");
+const backendBadge    = $("#backend-badge");
 const statusMsg       = $("#status-msg");
 
 const diskArea        = $("#disk-area");
@@ -71,6 +73,27 @@ let frozenSet = new Set();
 
 // Theme
 const THEME_STORAGE_KEY = "ems_theme";
+const LOCAL_API_BASE = "http://127.0.0.1:5000";
+const RENDER_API_BASE = "https://external-merge-sort-visualizer.onrender.com";
+
+function describeBackend(base) {
+    if (!base) return "Unknown";
+    if (base.includes("127.0.0.1") || base.includes("localhost")) return "Local";
+    if (base.includes("onrender.com")) return "Render";
+    return "Custom";
+}
+
+function setBackendUi(base, online, note) {
+    if (statBackend) {
+        statBackend.textContent = describeBackend(base);
+    }
+    if (backendBadge) {
+        backendBadge.classList.remove("online", "offline");
+        backendBadge.classList.add(online ? "online" : "offline");
+        backendBadge.textContent = note || (online ? "Online" : "Offline");
+        backendBadge.title = base || "";
+    }
+}
 
 function applyTheme(theme) {
     const isDark = theme === "dark";
@@ -99,6 +122,7 @@ if (btnTheme) {
 }
 
 initTheme();
+setBackendUi(API_BASE, false, "Checking");
 
 if (window.location.hostname.includes("github.io") && !API_BASE) {
     setStatus("[Lưu ý] GitHub Pages chỉ host giao diện tĩnh. Hãy cấu hình window.API_BASE để gọi backend Flask.");
@@ -253,12 +277,61 @@ async function loadFromAPI() {
     btnPlay.disabled = true;
 
     try {
-        const res = await fetch(`${API_BASE}/api/sort`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ data, B, mode }),
-        });
-        const json = await res.json();
+        const normalizedBase = API_BASE || "";
+        const fallbackBase = normalizedBase === LOCAL_API_BASE ? RENDER_API_BASE : LOCAL_API_BASE;
+        const attempts = [normalizedBase, fallbackBase].filter((base, idx, arr) => base && arr.indexOf(base) === idx);
+
+        let json = null;
+        let lastErr = null;
+
+        for (let i = 0; i < attempts.length; i++) {
+            const base = attempts[i];
+            const apiUrl = `${base}/api/sort`;
+
+            try {
+                const res = await fetch(apiUrl, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ data, B, mode }),
+                });
+
+                const contentType = (res.headers.get("content-type") || "").toLowerCase();
+                const rawText = await res.text();
+
+                if (!res.ok) {
+                    throw new Error(`API lỗi ${res.status} tại ${apiUrl}`);
+                }
+
+                if (!contentType.includes("application/json")) {
+                    if (rawText.trim().startsWith("<")) {
+                        throw new Error("Server trả về HTML thay vì JSON. Kiểm tra API_BASE và endpoint /api/sort.");
+                    }
+                    throw new Error("Phản hồi API không phải JSON hợp lệ.");
+                }
+
+                json = JSON.parse(rawText);
+                setBackendUi(base, true, "Online");
+                if (i > 0) {
+                    setStatus(`[Kết nối] Backend chính tạm lỗi, đã tự chuyển sang ${base}`);
+                }
+                break;
+            } catch (err) {
+                lastErr = err;
+                const isNetworkErr = err && err.name === "TypeError";
+                const hasNext = i < attempts.length - 1;
+                if (isNetworkErr && hasNext) {
+                    setBackendUi(base, false, "Retrying");
+                    continue;
+                }
+                setBackendUi(base, false, "Offline");
+                throw err;
+            }
+        }
+
+        if (!json) {
+            throw lastErr || new Error("Không nhận được phản hồi từ backend.");
+        }
+
         if (json.error) {
             setStatus("[Lỗi] " + json.error);
             btnPlay.disabled = false;
@@ -280,7 +353,12 @@ async function loadFromAPI() {
         updateStepStat();
         return true;
     } catch (err) {
-        setStatus("[Lỗi] " + err.message);
+        setBackendUi(API_BASE || LOCAL_API_BASE, false, "Offline");
+        if (err && err.name === "TypeError") {
+            setStatus("[Lỗi] Failed to fetch. Có thể backend đang sleep/cold start, mạng tạm lỗi, hoặc local Flask chưa chạy ở 127.0.0.1:5000.");
+        } else {
+            setStatus("[Lỗi] " + err.message);
+        }
         btnPlay.disabled = false;
         return false;
     }

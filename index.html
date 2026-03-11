@@ -94,6 +94,11 @@
             <span class="stat-label">Bước</span>
             <span class="stat-value" id="stat-step">0 / 0</span>
         </div>
+        <div class="stat-box stat-box-backend">
+            <span class="stat-label">Backend</span>
+            <span class="stat-value" id="stat-backend">—</span>
+            <span class="backend-badge" id="backend-badge">Unknown</span>
+        </div>
     </section>
 
     <!-- ================== STATUS MESSAGE ===================== -->
@@ -135,7 +140,16 @@
     </section>
 
     <script>
-        window.API_BASE = window.API_BASE || "";
+        (function () {
+            const host = window.location.hostname;
+            const isLocal = host === "localhost" || host === "127.0.0.1";
+            const defaultApiBase = isLocal
+                ? "http://127.0.0.1:5000"
+                : "https://external-merge-sort-visualizer.onrender.com";
+
+            // Keep manual override support via setting window.API_BASE before this block.
+            window.API_BASE = window.API_BASE || defaultApiBase;
+        })();
     </script>
     <script src="./script.js"></script>
 </body>

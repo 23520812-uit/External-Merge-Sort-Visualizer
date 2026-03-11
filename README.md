@@ -45,6 +45,19 @@ python app.py
 
 Mở trình duyệt tại: `http://127.0.0.1:5000`
 
+## Luân phiên 2 môi trường chạy
+
+Frontend hiện tự chọn backend theo môi trường:
+
+- Chạy local (`localhost` / `127.0.0.1`) -> gọi API local Flask: `http://127.0.0.1:5000`
+- Chạy trên GitHub Pages (hoặc domain khác) -> gọi API Render: `https://external-merge-sort-visualizer.onrender.com`
+
+## Khuyến nghị hiệu năng
+
+Nên **clone repo về máy và chạy local** để có trải nghiệm mượt và phản hồi nhanh hơn.
+
+Lý do: backend trên Render (gói miễn phí) có thể bị cold start, nên request đầu tiên thường chậm.
+
 ## Cấu trúc thư mục
 
 ```text
